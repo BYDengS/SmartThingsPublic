@@ -116,6 +116,7 @@ def levelEventHandler(currentLevel) {
 		sendEvent(name: "level", value: currentLevel)
 		if (currentLevel == 0 || currentLevel == 100) {
 			sendEvent(name: "windowShade", value: currentLevel == 0 ? "closed" : "open")
+            sendEvent(name: "supportedWindowShadeCommands", value: ["open", "closed"])
 		} else {
 			if (lastLevel < currentLevel) {
 				sendEvent([name:"windowShade", value: "opening"])
@@ -132,6 +133,7 @@ def updateFinalState() {
 	log.debug "updateFinalState: ${level}"
 	if (level > 0 && level < 100) {
 		sendEvent(name: "windowShade", value: "partially open")
+         sendEvent(name: "supportedWindowShadeCommands", value: ["open", "closed"])
 	}
 }
 
@@ -140,12 +142,14 @@ def supportsLiftPercentage() {
 }
 
 def close() {
-	log.info "close()"
-	zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_CLOSE)
+    log.info "close()"
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"])
+    zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_CLOSE)
 }
 
 def open() {
 	log.info "open()"
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"])
 	zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_OPEN)
 }
 
@@ -162,11 +166,13 @@ def setLevel(data, rate = null) {
 	} else {
 		cmd = zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, COMMAND_MOVE_LEVEL_ONOFF, zigbee.convertToHexString(Math.round(data * 255 / 100), 2))
 	}
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"])
 	return cmd
 }
 
 def pause() {
 	log.info "pause()"
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "closed"])
 	zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_PAUSE)
 }
 
@@ -200,7 +206,7 @@ def configure() {
 	} else {
 		cmds = zigbee.levelConfig()
 	}
-
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "closed"])
 	if (usesLocalGroupBinding()) {
 		cmds += readDeviceBindingTable()
 	}
