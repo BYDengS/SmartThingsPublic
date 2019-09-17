@@ -143,13 +143,13 @@ def supportsLiftPercentage() {
 
 def close() {
     log.info "close()"
-    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"])
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"].encodeAsJSON())
     zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_CLOSE)
 }
 
 def open() {
 	log.info "open()"
-    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"])
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"].encodeAsJSON())
 	zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_OPEN)
 }
 
@@ -166,13 +166,13 @@ def setLevel(data, rate = null) {
 	} else {
 		cmd = zigbee.command(zigbee.LEVEL_CONTROL_CLUSTER, COMMAND_MOVE_LEVEL_ONOFF, zigbee.convertToHexString(Math.round(data * 255 / 100), 2))
 	}
-    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"])
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "pause", "closed"].encodeAsJSON())
 	return cmd
 }
 
 def pause() {
 	log.info "pause()"
-    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "closed"])
+    sendEvent(name: "supportedWindowShadeCommands", value: ["open", "closed"].encodeAsJSON())
 	zigbee.command(CLUSTER_WINDOW_COVERING, COMMAND_PAUSE)
 }
 
